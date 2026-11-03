@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "electromagnetism:block/electric_fan/block", "x": 180 },
+    "facing=east": { "model": "electromagnetism:block/electric_fan/block", "x": 90, "y": 90 },
+    "facing=north": { "model": "electromagnetism:block/electric_fan/block", "x": 90 },
+    "facing=south": { "model": "electromagnetism:block/electric_fan/block", "x": -90 },
+    "facing=up": { "model": "electromagnetism:block/electric_fan/block" },
+    "facing=west": { "model": "electromagnetism:block/electric_fan/block", "x": 90, "y": -90 }
+  }
+}

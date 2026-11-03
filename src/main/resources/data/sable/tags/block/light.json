@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "electromagnetism:light_fixture",
+    "electromagnetism:factory_light"
+  ]
+}

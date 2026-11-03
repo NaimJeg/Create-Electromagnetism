@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_connector": {
+      "conditions": {
+        "items": [
+          {
+            "items": "electroenergetics:connector"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_connector"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "electromagnetism:light_fixture",
+      "electromagnetism:lv_light_bulb",
+      "electromagnetism:light_bulb",
+      "electromagnetism:growth_lamp",
+      "electromagnetism:factory_light",
+      "electromagnetism:heating_coil",
+      "electromagnetism:reversing_switch"
+    ]
+  }
+}

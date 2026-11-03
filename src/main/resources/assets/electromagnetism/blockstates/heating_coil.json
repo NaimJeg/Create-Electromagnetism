@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east": { "model": "electromagnetism:block/heating_coil", "y": 90 },
+    "facing=north": { "model": "electromagnetism:block/heating_coil" },
+    "facing=south": { "model": "electromagnetism:block/heating_coil", "y": 180 },
+    "facing=west": { "model": "electromagnetism:block/heating_coil", "y": 270 }
+  }
+}

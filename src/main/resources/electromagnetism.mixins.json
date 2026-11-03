@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.electromagnetism.integration.cee.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AlternatorBrushesBlockEntityMixin",
+    "AlternatorRotorBlockEntityMixin",
+    "AlternatorRotorBlockPlacementHelperMixin",
+    "FrequencyMeterBlockEntityAccessor",
+    "KineticBlockEntityAccessor",
+    "SynchroscopeBlockEntityAccessor",
+    "ThreePhaseAlternatorBrushesDeviceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

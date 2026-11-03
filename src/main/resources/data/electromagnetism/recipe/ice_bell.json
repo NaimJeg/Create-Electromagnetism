@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "III",
+    "IBI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:ice"
+    },
+    "B": {
+      "item": "electromagnetism:electric_bell"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "electromagnetism:ice_bell"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "electromagnetism:block/conductive_casing" }
+  }
+}
