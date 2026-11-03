@@ -17,6 +17,7 @@ public class ElectromagnetismClient {
      */
     public static void init() {
         ModPartialModels.register();
+        ClientHooks.openOscilloscope = be -> net.minecraft.client.Minecraft.getInstance().setScreen(new OscilloscopeScreen(be));
         ClientHooks.bellAudio = BellSoundHandler::tickAudio;
     }
 }

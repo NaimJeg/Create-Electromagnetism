@@ -37,5 +37,22 @@
   "block.electromagnetism.ice_bell": "彩蛋电铃",
   "block.electromagnetism.nailong_bell": "奶龙电铃",
   "subtitles.electromagnetism.ice_bell": "电铃：冰冰冰",
-  "subtitles.electromagnetism.nailong_bell": "奶龙：哈哈哈哈哈哈哈哈"
+  "subtitles.electromagnetism.nailong_bell": "奶龙：哈哈哈哈哈哈哈哈",
+  "block.electromagnetism.microphone": "麦克风（2 Hz 测试源）",
+  "block.electromagnetism.oscilloscope": "示波器",
+  "electromagnetism.scope.title": "示波器",
+  "electromagnetism.scope.live": "实时",
+  "electromagnetism.scope.held": "已冻结",
+  "electromagnetism.scope.gain_up": "放大幅度",
+  "electromagnetism.scope.gain_down": "缩小幅度",
+  "electromagnetism.scope.time_in": "缩短时基",
+  "electromagnetism.scope.time_out": "延长时基",
+  "electromagnetism.scope.freeze": "冻结/继续",
+  "electromagnetism.scope.up": "Y 中心 +",
+  "electromagnetism.scope.down": "Y 中心 -",
+  "electromagnetism.scope.older": "查看更早",
+  "electromagnetism.scope.newer": "查看更新",
+  "electromagnetism.scope.reset": "复位",
+  "electromagnetism.scope.stale": "无近期采样数据",
+  "electromagnetism.scope.incomplete": "窗口内数据不足或缺失"
 }

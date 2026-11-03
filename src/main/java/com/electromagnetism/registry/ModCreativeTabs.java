@@ -28,6 +28,8 @@ public class ModCreativeTabs {
                     .title(Component.translatable("itemGroup.electromagnetism"))
                     .icon(ModBlocks.LIGHT_FIXTURE::asStack)
                     .displayItems((parameters, output) -> {
+                        output.accept(ModBlocks.MICROPHONE.asStack());
+                        output.accept(ModBlocks.OSCILLOSCOPE.asStack());
                         output.accept(ModBlocks.LIGHT_FIXTURE.asStack());      // 灯具固定座
                         output.accept(ModItems.LV_LIGHT_BULB.asStack());       // LV 白炽灯泡
                         output.accept(ModItems.LIGHT_BULB.asStack());          // 白炽灯泡

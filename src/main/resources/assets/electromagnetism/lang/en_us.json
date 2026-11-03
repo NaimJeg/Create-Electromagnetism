@@ -40,5 +40,22 @@
   "block.electromagnetism.ice_bell": "Ice Bell",
   "block.electromagnetism.nailong_bell": "Nailong Bell",
   "subtitles.electromagnetism.ice_bell": "Electric Bell: Bing Bing Bing",
-  "subtitles.electromagnetism.nailong_bell": "Nailong: Hahahahaha"
+  "subtitles.electromagnetism.nailong_bell": "Nailong: Hahahahaha",
+  "block.electromagnetism.microphone": "Microphone (2 Hz Test Source)",
+  "block.electromagnetism.oscilloscope": "Oscilloscope",
+  "electromagnetism.scope.title": "Oscilloscope",
+  "electromagnetism.scope.live": "Live",
+  "electromagnetism.scope.held": "Frozen",
+  "electromagnetism.scope.gain_up": "Gain +",
+  "electromagnetism.scope.gain_down": "Gain -",
+  "electromagnetism.scope.time_in": "Time +",
+  "electromagnetism.scope.time_out": "Time -",
+  "electromagnetism.scope.freeze": "Hold / Run",
+  "electromagnetism.scope.up": "Y center +",
+  "electromagnetism.scope.down": "Y center -",
+  "electromagnetism.scope.older": "Earlier",
+  "electromagnetism.scope.newer": "Later",
+  "electromagnetism.scope.reset": "Reset",
+  "electromagnetism.scope.stale": "No recent samples",
+  "electromagnetism.scope.incomplete": "Insufficient or missing window data"
 }

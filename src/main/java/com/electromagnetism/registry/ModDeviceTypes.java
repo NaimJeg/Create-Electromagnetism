@@ -115,6 +115,8 @@ public class ModDeviceTypes {
      *
      * @param bus 模组事件总线
      */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<com.electromagnetism.content.instruments.MicrophoneDevice>> MICROPHONE = DEVICES.register("microphone", () -> new SimulatedDeviceType<>(ElectromagnetismMod.rl("microphone"), (type, level, pos, sd) -> new com.electromagnetism.content.instruments.MicrophoneDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<com.electromagnetism.content.instruments.OscilloscopeDevice>> OSCILLOSCOPE = DEVICES.register("oscilloscope", () -> new SimulatedDeviceType<>(ElectromagnetismMod.rl("oscilloscope"), (type, level, pos, sd) -> new com.electromagnetism.content.instruments.OscilloscopeDevice(level, pos, sd, type)));
     public static void register(IEventBus bus) {
         DEVICES.register(bus);
     }

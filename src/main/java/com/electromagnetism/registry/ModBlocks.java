@@ -257,6 +257,8 @@ public class ModBlocks {
      * Registrate 的方块注册在类加载静态字段初始化时已完成，
      * 主类调用本方法仅为确保本类被加载。
      */
+    public static final BlockEntry<com.electromagnetism.content.instruments.MicrophoneBlock> MICROPHONE = REGISTRATE.block("microphone", com.electromagnetism.content.instruments.MicrophoneBlock::new).initialProperties(SharedProperties::stone).properties(p -> p.noOcclusion()).transform(pickaxeOnly()).simpleItem().register();
+    public static final BlockEntry<com.electromagnetism.content.instruments.OscilloscopeBlock> OSCILLOSCOPE = REGISTRATE.block("oscilloscope", com.electromagnetism.content.instruments.OscilloscopeBlock::new).initialProperties(SharedProperties::stone).properties(p -> p.noOcclusion()).transform(pickaxeOnly()).simpleItem().register();
     public static void register() {
     }
 }

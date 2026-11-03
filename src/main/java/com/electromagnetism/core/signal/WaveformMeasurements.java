@@ -59,6 +59,27 @@ public final class WaveformMeasurements {
         return OptionalDouble.empty();
     }
 
+    /** Mean period between same-direction crossings. Gaps invalidate the whole window. */
+    public static OptionalDouble frequency(List<WaveformBuffer.Sample> input, double threshold, boolean rising) {
+        Numbers.finite("threshold", threshold);
+        var samples = List.copyOf(input);
+        validateOrder(samples);
+        if (samples.stream().anyMatch(s -> s.quality() != WaveformBuffer.Quality.VALID))
+            return OptionalDouble.empty();
+        double first = 0, last = 0;
+        int crossings = 0;
+        for (int i = 1; i < samples.size(); i++) {
+            var crossing = edge(samples.subList(i - 1, i + 1), threshold, rising);
+            if (crossing.isPresent()) {
+                last = crossing.getAsDouble();
+                if (crossings++ == 0) first = last;
+            }
+        }
+        if (crossings < 2) return OptionalDouble.empty();
+        double hz = (crossings - 1) / (last - first);
+        return Double.isFinite(hz) ? OptionalDouble.of(hz) : OptionalDouble.empty();
+    }
+
     private static void validateOrder(List<WaveformBuffer.Sample> samples) {
         for (int i = 1; i < samples.size(); i++)
             if (samples.get(i).timeSeconds() <= samples.get(i - 1).timeSeconds())
