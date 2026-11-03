@@ -70,7 +70,7 @@ public class ModConfigs {
                 "Chance denominator for ticking a crop (lower = more frequent). 1 ticks every block every tick.");
         /** 元件损耗开关：默认开启。开启后灯泡过载会烧毁（切换为破损模型并不再发光），关闭则灯泡永不烧毁 */
         public final ConfigBool componentDamage = b(true, "componentDamage",
-                "Light bulbs burn out when overloaded");
+                "Light bulbs and heating coils burn out when overloaded");
         /** 工厂灯投射距离：默认 16 格（范围 0~32）。工厂灯沿朝向投射的光块最远距离，调大可照亮更远区域 */
         public final ConfigInt factoryLightProjectionRange = i(16, 0, 32, "factoryLightProjectionRange",
                 "Maximum block range of the factory light projected light blocks");

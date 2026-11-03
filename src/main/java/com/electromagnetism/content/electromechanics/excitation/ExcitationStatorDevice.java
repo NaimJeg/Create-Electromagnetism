@@ -56,8 +56,7 @@ public class ExcitationStatorDevice extends SimpleElectricalDevice {
             return;
         // 端子朝向的轴线：向轴线两侧各看一格，尝试与相邻定子并联。
         Direction.Axis axis = ExcitationStatorBlock.terminalAxis(state);
-        for (Direction.AxisDirection direction : Direction.AxisDirection.values())
-            shareWith(bridges, pos.relative(axis, direction.getStep()));
+        shareWith(bridges, pos.relative(axis, 1));
     }
 
     /**

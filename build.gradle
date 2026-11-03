@@ -137,3 +137,16 @@ idea {
         downloadJavadoc = true
     }
 }
+
+// Persisted semiconductor settings must never pass NaN or infinity into CEE.
+def verifyElectrical = tasks.register('verifyElectrical', JavaExec) {
+    group = 'verification'
+    description = 'Checks electrical parameter bounds and finite-value recovery.'
+    dependsOn tasks.named('verificationClasses')
+    classpath = sourceSets.verification.runtimeClasspath
+    mainClass = 'com.electromagnetism.core.model.ElectricalChecks'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+tasks.named('check') { dependsOn verifyElectrical }

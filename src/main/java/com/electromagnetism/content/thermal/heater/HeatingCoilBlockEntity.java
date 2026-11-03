@@ -42,6 +42,14 @@ public class HeatingCoilBlockEntity extends SmartBlockEntity implements IHaveGog
     private float temperature = HeatingCoilDevice.AMBIENT_TEMPERATURE;
     /** 由温度推导出的工作状态。 */
     private State state = State.COLD;
+    private boolean burned;
+
+    public void setBurned(boolean burned) {
+        if (this.burned == burned)
+            return;
+        this.burned = burned;
+        sendData();
+    }
 
     public HeatingCoilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -107,6 +115,9 @@ public class HeatingCoilBlockEntity extends SmartBlockEntity implements IHaveGog
         Lang.builder("electromagnetism").translate("gui.heater.title")
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip);
+        if (burned)
+            Lang.builder("electromagnetism").translate("gui.heater.burned")
+                    .style(ChatFormatting.RED).forGoggles(tooltip);
         float shown = Math.round(temperature * 100f) / 100f;
         Lang.builder("electromagnetism")
                 .add(Component.literal(String.format("%.2f °C", shown)))
@@ -120,6 +131,7 @@ public class HeatingCoilBlockEntity extends SmartBlockEntity implements IHaveGog
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
         temperature = tag.getFloat("Temperature");
+        burned = tag.getBoolean("Burned");
         state = stateOf(temperature);
     }
 
@@ -128,5 +140,6 @@ public class HeatingCoilBlockEntity extends SmartBlockEntity implements IHaveGog
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag, registries, clientPacket);
         tag.putFloat("Temperature", temperature);
+        tag.putBoolean("Burned", burned);
     }
 }

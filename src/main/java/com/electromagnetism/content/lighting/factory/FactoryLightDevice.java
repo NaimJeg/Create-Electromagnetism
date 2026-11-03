@@ -154,7 +154,7 @@ public class FactoryLightDevice extends SimpleElectricalDevice {
             return;
         if (other.getValue(FactoryLightBlock.HORIZONTAL_AXIS) != self.getValue(FactoryLightBlock.HORIZONTAL_AXIS))
             return;
-        // CEE 1.1.1 has bridge(Node, Node, ElectricalProperties) but not the double overload added in 1.2.0.
+        // CEE 1.1.4 accepts ElectricalProperties for bridges between devices.
         ElectricalProperties share = ElectricalProperties.resistor(SHARE_RESISTANCE);
         bridges.bridge(new InWorldNode(0, pos), new InWorldNode(0, neighbor), share);
         bridges.bridge(new InWorldNode(1, pos), new InWorldNode(1, neighbor), share);

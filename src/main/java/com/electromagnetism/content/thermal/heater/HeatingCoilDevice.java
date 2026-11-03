@@ -34,6 +34,8 @@ public class HeatingCoilDevice extends SimpleElectricalDevice {
     public HeatingCoilBlockEntity be;
     /** 线圈温度（°C）。 */
     private float temperature = AMBIENT_TEMPERATURE;
+    private boolean burned;
+    private int overloadTicks;
 
     public HeatingCoilDevice(Level level, BlockPos pos, DevicesSavedData deviceSD, SimulatedDeviceType<?> type) {
         super(level, pos, deviceSD, type);
@@ -45,6 +47,8 @@ public class HeatingCoilDevice extends SimpleElectricalDevice {
      */
     @Override
     public void preTick(BridgeCollector bridges) {
+        if (burned)
+            return;
         bridges.builder(pos).resistor(0, 1, ModConfigs.server().heatingCoilResistance.getF());
     }
 
@@ -64,6 +68,14 @@ public class HeatingCoilDevice extends SimpleElectricalDevice {
         if (!Double.isFinite(heat))
             heat = 0;
         float maxPower = ModConfigs.server().heatingCoilMaxPower.getF();
+        if (!burned && ModConfigs.server().componentDamage.get() && heat > maxPower * 1.25) {
+            if (++overloadTicks >= 4)
+                burned = true;
+        } else {
+            overloadTicks = 0;
+        }
+        if (burned)
+            heat = 0;
         float mass = Math.max(0.01f, ModConfigs.server().heatingCoilMass.getF());
         // 散热功率与温差成正比；比例系数使满功率时稳态温度恰为 600°C
         float dissipation = (maxPower / (OVERHEAT_TEMPERATURE - AMBIENT_TEMPERATURE)) * (temperature - AMBIENT_TEMPERATURE);
@@ -79,21 +91,27 @@ public class HeatingCoilDevice extends SimpleElectricalDevice {
         if (be != null) {
             if (be.isRemoved())
                 be = null;
-            else
+            else {
+                be.setBurned(burned);
                 be.setTemperature(temperature);
+            }
         }
     }
 
     /** 从存档 NBT 读取温度。 */
     @Override
     public void read(CompoundTag tag) {
-        temperature = tag.contains("Temperature") ? tag.getFloat("Temperature") : AMBIENT_TEMPERATURE;
+        float saved = tag.getFloat("Temperature");
+        temperature = Float.isFinite(saved) ? Math.clamp(saved, AMBIENT_TEMPERATURE, OVERHEAT_TEMPERATURE) : AMBIENT_TEMPERATURE;
+        burned = tag.getBoolean("Burned");
+        overloadTicks = 0;
     }
 
     /** 写入存档 NBT。 */
     @Override
     public void write(CompoundTag tag) {
         tag.putFloat("Temperature", temperature);
+        tag.putBoolean("Burned", burned);
     }
 
     /** 方块不再是加热线圈时移除设备。 */

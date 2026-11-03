@@ -1,5 +1,6 @@
 package com.electromagnetism.content.electronics.mosfet;
 
+import com.electromagnetism.core.model.ElectricalLimits;
 import com.electromagnetism.integration.cee.electrical.CeeNonlinearBranch;
 
 /**
@@ -85,7 +86,7 @@ public class MosfetElectricalProperties extends CeeNonlinearBranch {
     private double idMax = 10;
     /** 跨导系数 k = 1/(R_DS(on)·VOV_REF)，由 configure 时更新。 */
     private double k;
-    /** 上一微刻的端电压差，作为本次牛顿迭代的首个初值。 */
+    /** 上一微刻的端电压差，作为下一微刻的线性化输入。 */
     private double vOld;
 
     public MosfetElectricalProperties(boolean gate, SharedState state) {
@@ -95,10 +96,10 @@ public class MosfetElectricalProperties extends CeeNonlinearBranch {
 
     /** 每刻从设备同步三个可调参数，并重推跨导系数 k。 */
     public void configure(double vth, double rdsOn, double idMax) {
-        this.vth = vth;
-        this.rdsOn = rdsOn;
-        this.idMax = idMax;
-        this.k = 1 / (rdsOn * VOV_REF);
+        this.vth = ElectricalLimits.GATE_THRESHOLD.sanitize(vth);
+        this.rdsOn = ElectricalLimits.ON_RESISTANCE.sanitize(rdsOn);
+        this.idMax = ElectricalLimits.DRAIN_CURRENT.sanitize(idMax);
+        this.k = 1 / (this.rdsOn * VOV_REF);
     }
 
     /** 截止区电导：1/1MΩ（沟道关断）。 */
@@ -108,7 +109,7 @@ public class MosfetElectricalProperties extends CeeNonlinearBranch {
     }
 
     /**
-     * 每个牛顿迭代由求解器调用一次：v1/v2 是本元件两个端子的当前电压
+     * 每个 CEE 微刻由求解器调用一次：v1/v2 是本元件两个端子的当前电压
      * （语义方向：栅元件 v1=栅极、v2=源极；沟道元件 v1=漏极、v2=源极），
      * first 表示这是本微刻的首次迭代。
      */

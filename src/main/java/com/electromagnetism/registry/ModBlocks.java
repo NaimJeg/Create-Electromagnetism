@@ -81,9 +81,6 @@ public class ModBlocks {
             .transform(pickaxeOnly())
             .item()
             .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/fixtures/light_fixture_v")))
-            // 物品提示中标注电阻 1Ω
-            .onRegister(i -> ElectricStatsTooltipModifier.ALL_ENTRIES.register(i, new ElectricStatsTooltipModifier.ElectricStatSet()
-                    .addResistance(() -> 1)))
             .build()
             .register();
 
@@ -162,6 +159,8 @@ public class ModBlocks {
             .item()
             .model((c, p) -> p.withExistingParent(c.getName(),
                     ResourceLocation.fromNamespaceAndPath("electroenergetics", "block/double_switch/block")))
+            .onRegister(i -> ElectricStatsTooltipModifier.ALL_ENTRIES.register(i,
+                    new ElectricStatsTooltipModifier.ElectricStatSet().addResistance(() -> com.electromagnetism.config.ModConfigs.server().reversingSwitchResistance.getF())))
             .build()
             .register();
 
@@ -217,6 +216,8 @@ public class ModBlocks {
             .transform(pickaxeOnly())
             .item()
             .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/electric_bell")))
+            .onRegister(i -> ElectricStatsTooltipModifier.ALL_ENTRIES.register(i,
+                    new ElectricStatsTooltipModifier.ElectricStatSet().addResistance(() -> com.electromagnetism.content.acoustics.bell.ElectricBellDevice.RESISTANCE)))
             .build()
             .register();
 
@@ -228,6 +229,8 @@ public class ModBlocks {
             .transform(pickaxeOnly())
             .item()
             .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/electric_bell")))
+            .onRegister(i -> ElectricStatsTooltipModifier.ALL_ENTRIES.register(i,
+                    new ElectricStatsTooltipModifier.ElectricStatSet().addResistance(() -> com.electromagnetism.content.acoustics.bell.ElectricBellDevice.RESISTANCE)))
             .build()
             .register();
 
@@ -239,6 +242,8 @@ public class ModBlocks {
             .transform(pickaxeOnly())
             .item()
             .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/nailong_bell")))
+            .onRegister(i -> ElectricStatsTooltipModifier.ALL_ENTRIES.register(i,
+                    new ElectricStatsTooltipModifier.ElectricStatSet().addResistance(() -> com.electromagnetism.content.acoustics.bell.ElectricBellDevice.RESISTANCE)))
             .build()
             .register();
 
@@ -249,6 +254,8 @@ public class ModBlocks {
             .transform(pickaxeOnly())
             .item()
             .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/excitation_stator/block")))
+            .onRegister(i -> ElectricStatsTooltipModifier.ALL_ENTRIES.register(i,
+                    new ElectricStatsTooltipModifier.ElectricStatSet().addResistance(() -> com.electromagnetism.config.ModConfigs.server().excitationStatorResistance.getF())))
             .build()
             .register();
 

@@ -42,7 +42,11 @@ public class ExcitationStatorBlockEntity extends SmartBlockEntity implements IHa
      * 向客户端刷大量无意义的同步包。
      */
     public void setFieldStrength(float fieldStrength) {
-        if (Math.abs(this.fieldStrength - fieldStrength) < 0.5f)
+        if (!Float.isFinite(fieldStrength))
+            fieldStrength = 0;
+        if (fieldStrength != 0 && Math.abs(this.fieldStrength - fieldStrength) < 0.5f)
+            return;
+        if (this.fieldStrength == fieldStrength)
             return;
         this.fieldStrength = fieldStrength;
         // 超过死区才触发客户端同步

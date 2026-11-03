@@ -103,8 +103,8 @@ public abstract class AlternatorRotorBlockEntityMixin implements FractionalRotor
             self.getOrCreateNetwork().updateStressFor(self, self.calculateStressApplied());
             // 原版也是在应力更新的同时发送数据包，这样客户端就不会在服务端
             // 认为未过载时误以为转子已过载（两侧数据保持一致）
-            self.sendData();
         }
+        self.sendData();
     }
 
     /**

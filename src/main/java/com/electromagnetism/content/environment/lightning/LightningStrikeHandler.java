@@ -369,8 +369,7 @@ public class LightningStrikeHandler {
         try {
             // 电弧不分极性：负极性雷击后被击点电位可能为负，取电位差绝对值
             if (strike.target().type() == TargetType.DEVICE && strike.target().deviceNode() != null)
-                potentialDiff = Math.abs(results.getVoltageAt(strike.node())
-                        - results.getVoltageAt(strike.target().deviceNode()));
+                potentialDiff = Math.abs(results.getVoltageAt(strike.node(), strike.target().deviceNode()));
             else
                 potentialDiff = Math.abs(results.getVoltageAt(strike.node()));
             arcCurrent = (potentialDiff - arcDrop) / STRIKE_RESISTANCE;

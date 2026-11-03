@@ -1,7 +1,5 @@
 package com.electromagnetism.content.lighting.bulb;
 
-import net.minecraft.world.item.Item;
-
 /**
  * 灯泡行为接口。
  * <p>

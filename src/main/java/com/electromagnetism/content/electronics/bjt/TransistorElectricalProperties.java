@@ -1,5 +1,6 @@
 package com.electromagnetism.content.electronics.bjt;
 
+import com.electromagnetism.core.model.ElectricalLimits;
 import com.electromagnetism.integration.cee.electrical.CeeNonlinearBranch;
 
 /**
@@ -70,7 +71,7 @@ public class TransistorElectricalProperties extends CeeNonlinearBranch {
     private double saturationCurrent;
     /** 临界电压 vCrit = V_T·ln(V_T/(Is·√2))，pnLim 阻尼的切换点。 */
     private double vCrit;
-    /** 上一微刻的端电压差，作为本次牛顿迭代的首个初值。 */
+    /** 上一微刻的端电压差，作为下一微刻的线性化输入。 */
     private double vOld;
 
     public TransistorElectricalProperties(boolean junction, SharedState state) {
@@ -80,11 +81,11 @@ public class TransistorElectricalProperties extends CeeNonlinearBranch {
 
     /** 每刻从设备同步三个可调参数，并重推指数模型的 Is 与 vCrit。 */
     public void configure(double beta, double vbeOn, double icMax) {
-        this.beta = beta;
-        this.vbeOn = vbeOn;
-        this.icMax = icMax;
+        this.beta = ElectricalLimits.BETA.sanitize(beta);
+        this.vbeOn = ElectricalLimits.VBE.sanitize(vbeOn);
+        this.icMax = ElectricalLimits.COLLECTOR_CURRENT.sanitize(icMax);
         // Is = I_REF / exp(V_BE(on)/V_T)：使结电流在 V_BE(on) 处恰为 I_REF
-        this.saturationCurrent = I_REF / Math.exp(vbeOn / V_T);
+        this.saturationCurrent = I_REF / Math.exp(this.vbeOn / V_T);
         this.vCrit = V_T * Math.log(V_T / (saturationCurrent * Math.sqrt(2)));
     }
 
@@ -139,7 +140,7 @@ public class TransistorElectricalProperties extends CeeNonlinearBranch {
     }
 
     /**
-     * 每个牛顿迭代由求解器调用一次：v1/v2 是本元件两个端子的当前电压
+     * 每个 CEE 微刻由求解器调用一次：v1/v2 是本元件两个端子的当前电压
      * （语义方向，NPN 时 v1 对应基极/集电极、v2 对应发射极），first 表示
      * 这是本微刻的首次迭代（此时以上一微刻的工作点为初值）。
      * 元件据此设置诺顿等效的电导与电流源。

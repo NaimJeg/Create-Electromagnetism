@@ -3,10 +3,8 @@ package com.electromagnetism.content.acoustics.bell;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
-import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.simulation.BridgeCollector;
 import com.george_vi.electroenergetics.simulation.SimulationResults;
-import com.george_vi.electroenergetics.simulation.electrical_properties.ElectricalProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,8 +34,7 @@ public class ElectricBellDevice extends SimpleElectricalDevice {
      */
     @Override
     public void preTick(BridgeCollector bridges) {
-        bridges.bridge(new InWorldNode(0, pos), new InWorldNode(1, pos),
-                ElectricalProperties.resistor(RESISTANCE));
+        bridges.builder(pos).resistor(0, 1, RESISTANCE);
     }
 
     /**
@@ -46,8 +43,8 @@ public class ElectricBellDevice extends SimpleElectricalDevice {
      */
     @Override
     public void postTick(SimulationResults results) {
-        double v = Math.abs(results.getVoltageAt(pos, 0) - results.getVoltageAt(pos, 1));
-        double current = v / RESISTANCE;
+        double v = Math.abs(results.getVoltageAt(pos, 0, 1));
+        double current = Double.isFinite(v) ? v / RESISTANCE : 0;
         float volume = (float) (current < 0.25 ? 0 : Math.min(current * 2, 1));
         float pitch = (float) (current < 0.5 ? 0.75 : Math.min(0.5 + current * 0.5, 1.25));
         if (level.getBlockEntity(pos) instanceof ElectricBellBlockEntity be)

@@ -1,5 +1,6 @@
 package com.electromagnetism.content.electronics.mosfet;
 
+import com.electromagnetism.core.model.ElectricalLimits;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -7,7 +8,6 @@ import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.simulation.BridgeCollector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -50,6 +50,9 @@ public class MosfetDevice extends SimpleElectricalDevice {
      */
     @Override
     public void preTick(BridgeCollector bridges) {
+        vth = ElectricalLimits.GATE_THRESHOLD.sanitize(vth);
+        rdsOn = ElectricalLimits.ON_RESISTANCE.sanitize(rdsOn);
+        idMax = ElectricalLimits.DRAIN_CURRENT.sanitize(idMax);
         state.pChannel = pChannel;
         gateInsulation.configure(vth, rdsOn, idMax);
         dsChannel.configure(vth, rdsOn, idMax);
@@ -57,12 +60,15 @@ public class MosfetDevice extends SimpleElectricalDevice {
         bridges.bridge(new InWorldNode(1, pos), new InWorldNode(2, pos), dsChannel);
     }
 
-    /** 从 NBT 读取参数并用 Mth.clamp 钳制到合法区间，防止存档被改出异常值。 */
+    /** 从 NBT 恢复参数；缺失或非有限值使用默认值，越界值钳制到合法区间。 */
     @Override
     public void read(CompoundTag tag) {
-        vth = Mth.clamp(tag.getDouble("Vth"), 0.1, 100);
-        rdsOn = Mth.clamp(tag.getDouble("RdsOn"), 0.001, 100);
-        idMax = Mth.clamp(tag.getDouble("IdMax"), 0.001, 1000);
+        vth = tag.contains("Vth") ? ElectricalLimits.GATE_THRESHOLD.sanitize(tag.getDouble("Vth"))
+                : ElectricalLimits.GATE_THRESHOLD.defaultValue();
+        rdsOn = tag.contains("RdsOn") ? ElectricalLimits.ON_RESISTANCE.sanitize(tag.getDouble("RdsOn"))
+                : ElectricalLimits.ON_RESISTANCE.defaultValue();
+        idMax = tag.contains("IdMax") ? ElectricalLimits.DRAIN_CURRENT.sanitize(tag.getDouble("IdMax"))
+                : ElectricalLimits.DRAIN_CURRENT.defaultValue();
     }
 
     /** 把三个参数写入 NBT 持久化。 */

@@ -1,5 +1,6 @@
 package com.electromagnetism.content.electronics.bjt;
 
+import com.electromagnetism.core.model.ElectricalLimits;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -7,7 +8,6 @@ import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.simulation.BridgeCollector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -48,6 +48,9 @@ public class TransistorDevice extends SimpleElectricalDevice {
      */
     @Override
     public void preTick(BridgeCollector bridges) {
+        beta = ElectricalLimits.BETA.sanitize(beta);
+        vbeOn = ElectricalLimits.VBE.sanitize(vbeOn);
+        icMax = ElectricalLimits.COLLECTOR_CURRENT.sanitize(icMax);
         state.pnp = pnp;
         beJunction.configure(beta, vbeOn, icMax);
         ceOutput.configure(beta, vbeOn, icMax);
@@ -57,12 +60,15 @@ public class TransistorDevice extends SimpleElectricalDevice {
         bridges.bridge(new InWorldNode(1, pos), new InWorldNode(2, pos), ceOutput);
     }
 
-    /** 从 NBT 读取参数并用 Mth.clamp 钳制到合法区间，防止存档被改出异常值。 */
+    /** 从 NBT 恢复参数；缺失或非有限值使用默认值，越界值钳制到合法区间。 */
     @Override
     public void read(CompoundTag tag) {
-        beta = Mth.clamp(tag.getDouble("Beta"), 1, 1000);
-        vbeOn = Mth.clamp(tag.getDouble("VbeOn"), 0.05, 3);
-        icMax = Mth.clamp(tag.getDouble("IcMax"), 0.001, 1000);
+        beta = tag.contains("Beta") ? ElectricalLimits.BETA.sanitize(tag.getDouble("Beta"))
+                : ElectricalLimits.BETA.defaultValue();
+        vbeOn = tag.contains("VbeOn") ? ElectricalLimits.VBE.sanitize(tag.getDouble("VbeOn"))
+                : ElectricalLimits.VBE.defaultValue();
+        icMax = tag.contains("IcMax") ? ElectricalLimits.COLLECTOR_CURRENT.sanitize(tag.getDouble("IcMax"))
+                : ElectricalLimits.COLLECTOR_CURRENT.defaultValue();
     }
 
     /** 把三个参数写入 NBT 持久化。 */
