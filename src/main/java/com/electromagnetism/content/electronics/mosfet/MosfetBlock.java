@@ -33,7 +33,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * <li>声明三个电气端子（0=栅极 G、1=漏极 D、2=源极 S）的节点位置；</li>
  * <li>绑定对应的方块实体与模拟器件类型。</li>
  * </ul>
- * 电气模型本身在 {@link MosfetDevice} / {@link MosfetElectricalProperties} 中实现。
+ * 电气模型本身在 {@link MosfetDevice} / {@link com.electromagnetism.core.model.MosfetModel} 中实现。
  */
 public class MosfetBlock extends DirectionalRolledDeviceBlock<MosfetDevice> implements IBE<MosfetBlockEntity> {
     /** 扁平贴地的芯片形状：本体 4-12 × 0-2 × 3-13（与 Blockbench 原始模型一致）。 */

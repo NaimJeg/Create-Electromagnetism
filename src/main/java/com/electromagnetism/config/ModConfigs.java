@@ -62,6 +62,9 @@ public class ModConfigs {
      * 逆变器以及电网频率模拟等参数。
      */
     public static class CServer extends ConfigBase {
+        public final ConfigBool preciseTransient = b(true, "preciseTransient",
+                "Adaptive trapezoidal CEE integration. False uses fixed-step backward Euler; failures never commit storage.",
+                "Unknown microstep devices are rejected in both modes until a transactional adapter is available.");
         /** 生长灯作用半径：默认 2 格（范围 1~8）。调大后生长灯催熟作物的覆盖范围更大，但每刻遍历的方块更多，可能增加卡顿 */
         public final ConfigInt growthLampRadius = i(2, 1, 8, "growthLampRadius",
                 "Radius of the area affected by the growth lamp");

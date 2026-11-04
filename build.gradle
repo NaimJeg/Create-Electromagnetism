@@ -24,6 +24,10 @@ neoForge {
     runs {
         client {
             client()
+            if (project.hasProperty('verificationServerAddress')) {
+                gameDirectory = project.file('build/client-verification')
+                programArguments.addAll '--quickPlayMultiplayer', project.property('verificationServerAddress')
+            }
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
         server {
@@ -54,7 +58,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 sourceSets {
     verification {
         java.srcDir 'src/verification/java'
-        compileClasspath = sourceSets.main.output
+        compileClasspath = sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath = output + compileClasspath
     }
 }
@@ -150,3 +154,63 @@ def verifyElectrical = tasks.register('verifyElectrical', JavaExec) {
     }
 }
 tasks.named('check') { dependsOn verifyElectrical }
+
+// Analytic model and transaction regression; independent of Minecraft initialization.
+def verifyModels = tasks.register('verifyModels', JavaExec) {
+    group = 'verification'
+    dependsOn tasks.named('verificationClasses')
+    classpath = sourceSets.verification.runtimeClasspath
+    mainClass = 'com.electromagnetism.core.model.ModelRuntimeChecks'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.named('check') { dependsOn verifyModels }
+
+def verifyCeeContract = tasks.register('verifyCeeContract', JavaExec) {
+    group = 'verification'
+    dependsOn tasks.named('verificationClasses')
+    classpath = sourceSets.verification.runtimeClasspath
+    mainClass = 'com.electromagnetism.integration.cee.CeeContractChecks'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.named('check') { dependsOn verifyCeeContract }
+
+['verifySemiconductors': 'com.electromagnetism.integration.cee.SemiconductorChecks',
+ 'verifyRadio': 'com.electromagnetism.core.signal.RadioChecks',
+ 'verifyScopeCodec': 'com.electromagnetism.integration.cee.ScopeCodecChecks'].each { taskName, entry ->
+    def verificationTask = tasks.register(taskName, JavaExec) {
+        group = 'verification'
+        dependsOn tasks.named('verificationClasses')
+        classpath = sourceSets.verification.runtimeClasspath
+        mainClass = entry
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+    }
+    tasks.named('check') { dependsOn verificationTask }
+}
+
+// Dev runs include verification helpers; release jars still contain only main output.
+neoForge.mods.electromagnetism.sourceSet(sourceSets.verification)
+configurations { ceeBaseline { canBeConsumed = false; transitive = false } }
+dependencies { ceeBaseline 'curse.maven:create-electro-energetics-1443327:9173792' }
+def verifyBaseline = tasks.register('verifyBaseline') {
+    group = 'verification'
+    inputs.files(configurations.ceeBaseline)
+    doLast {
+        def jar = configurations.ceeBaseline.singleFile
+        def digest = java.security.MessageDigest.getInstance('SHA-256').digest(jar.bytes).encodeHex().toString()
+        if (digest != '2362decf60ace66037eb2ae79f34fed57b5f152e0435164f5f91912ea837052f') {
+            throw new GradleException("CEE artifact fingerprint changed: " + digest)
+        }
+        logger.lifecycle('CEE pinned artifact SHA-256 verified')
+    }
+}
+tasks.named('check') { dependsOn verifyBaseline }
+
+// Analytic transients, coupled nonlinear detection, and rejected-step isolation.
+def verifyTransients = tasks.register('verifyTransients', JavaExec) {
+    group = 'verification'
+    dependsOn tasks.named('verificationClasses')
+    classpath = sourceSets.verification.runtimeClasspath
+    mainClass = 'com.electromagnetism.integration.cee.TransientChecks'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.named('check') { dependsOn verifyTransients }

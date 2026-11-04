@@ -33,7 +33,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * <li>声明三个电气端子（0=基极B、1=集电极C、2=发射极E）的节点位置；</li>
  * <li>绑定对应的方块实体与模拟器件类型。</li>
  * </ul>
- * 电气模型本身在 {@link TransistorDevice} / {@link TransistorElectricalProperties} 中实现。
+ * 电气模型本身在 {@link TransistorDevice} / {@link com.electromagnetism.core.model.BjtModel} 中实现。
  */
 public class TransistorBlock extends DirectionalRolledDeviceBlock<TransistorDevice> implements IBE<TransistorBlockEntity> {
     /** 引脚朝下、本体沿 Z 向的薄板形状（与 Blockbench 原始模型一致）。 */

@@ -44,7 +44,8 @@ public final class DeviceRuntime<P, S, T> implements AutoCloseable {
     private P pendingParameters;
     private T trialState;
     private long lastSequence = -1;
-    private double lastPreparedEnd;
+    private long lastAttempt = -1;
+    private double lastAcceptedEnd;
     private boolean closed;
 
     /** Loaded parameters/state enter here directly; storage belongs to the world-side device. */
@@ -61,12 +62,13 @@ public final class DeviceRuntime<P, S, T> implements AutoCloseable {
         Objects.requireNonNull(parameters);
         if (pending != null) throw new IllegalStateException("Previous step still pending");
         StepToken token = new StepToken(binding, step);
-        if (step.sequence() <= lastSequence || step.time().startSeconds() < lastPreparedEnd)
-            throw new IllegalArgumentException("Stale or overlapping step; local retries are unsupported");
+        if (step.sequence() < lastSequence || (step.sequence() == lastSequence && step.attempt() <= lastAttempt)
+                || step.time().startSeconds() < lastAcceptedEnd)
+            throw new IllegalArgumentException("Stale attempt or overlap with accepted time");
 
-        // Even a failed model initialization consumes the attempt: no local replay or catch-up energy.
+        // Retried physical steps need a fresh attempt identity; accepted time cannot rewind.
         lastSequence = step.sequence();
-        lastPreparedEnd = step.time().endSeconds();
+        lastAttempt = step.attempt();
         pending = token;
         pendingParameters = parameters;
         try {
@@ -115,6 +117,7 @@ public final class DeviceRuntime<P, S, T> implements AutoCloseable {
             Snapshot<P, S> nextSnapshot = new Snapshot<>(pendingParameters, next,
                     Optional.of(new AcceptedStep(token, electrical, solution.report())),
                     Optional.of(new Outcome(token, solution.report())), false);
+            lastAcceptedEnd = token.step().time().endSeconds();
             clearPending();
             published = nextSnapshot;
         } catch (RuntimeException failure) {

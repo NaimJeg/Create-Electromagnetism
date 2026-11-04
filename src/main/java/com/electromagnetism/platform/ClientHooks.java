@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  * 导致的专用服务器崩溃（RuntimeDistCleaner 约束）。
  */
 public class ClientHooks {
+    public static Consumer<com.electromagnetism.content.instruments.SignalGeneratorBlockEntity> openSignalGenerator = be -> {};
     public static Consumer<com.electromagnetism.content.instruments.InstrumentBlockEntity> openOscilloscope = be -> {};
 
     /** 电铃客户端音频钩子：根据方块实体同步的音量/音调启停铃声。 */

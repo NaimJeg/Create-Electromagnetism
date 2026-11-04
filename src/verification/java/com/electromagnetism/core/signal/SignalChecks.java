@@ -5,7 +5,27 @@ import java.util.OptionalDouble;
 
 /** Dependency-free regression entry point; run with scripts/test-signal.ps1. */
 public final class SignalChecks {
+    private static void generatorChecks() {
+        var sine = new SignalGenerator(SignalGenerator.Wave.SINE,2,2,1,true);
+        near(sine.voltage(0),1); near(sine.voltage(0.125),3); near(sine.voltage(0.375),-1);
+        var square = new SignalGenerator(SignalGenerator.Wave.SQUARE,2,2,1,true);
+        near(square.voltage(0),3); near(square.voltage(0.25),-1); near(square.voltage(0.5),3);
+        var triangle = new SignalGenerator(SignalGenerator.Wave.TRIANGLE,2,2,1,true);
+        near(triangle.voltage(0),-1); near(triangle.voltage(0.125),1); near(triangle.voltage(0.25),3);
+        near(new SignalGenerator(SignalGenerator.Wave.DC,2,9,3,true).voltage(100),3);
+        near(new SignalGenerator(null,2,9,3,false).voltage(100),0);
+        var recovered = new SignalGenerator(null,Double.NaN,Double.POSITIVE_INFINITY,Double.NaN,true);
+        near(recovered.frequency(),2); near(recovered.amplitude(),1); near(recovered.offset(),0);
+        var bounded = new SignalGenerator(null,100,100,-100,true);
+        near(bounded.frequency(),10); near(bounded.amplitude(),10); near(bounded.offset(),-10);
+        // Norton equivalent: a 50 ohm load halves open-circuit voltage; scope loading is finite.
+        double source=sine.voltage(0.125)/50;
+        near(source/(1.0/50+1.0/50),1.5);
+        near(source/(1.0/50+1.0/1e6),3*1e6/(1e6+50));
+        System.out.println("Signal generator checks passed: waveform, offset, off, finite bounds, Norton loading");
+    }
     public static void main(String[] args) {
+        generatorChecks();
         var viewport = new ScopeViewport(0.02, 0.1, 0.04, 0);
         near(viewport.relativeTime(0), -1);
         near(viewport.relativeTime(1), 0);

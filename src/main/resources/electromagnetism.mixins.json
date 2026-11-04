@@ -4,6 +4,8 @@
   "package": "com.electromagnetism.integration.cee.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "SimulationEvidenceMixin",
+    "NonlinearNetworkMixin",
     "AlternatorBrushesBlockEntityMixin",
     "AlternatorRotorBlockEntityMixin",
     "AlternatorRotorBlockPlacementHelperMixin",

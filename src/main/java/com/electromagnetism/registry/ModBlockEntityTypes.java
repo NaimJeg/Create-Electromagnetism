@@ -89,7 +89,8 @@ public class ModBlockEntityTypes {
      * Registrate 的方块实体注册在类加载静态字段初始化时已完成，
      * 主类调用本方法仅为确保本类被加载。
      */
-    public static final BlockEntityEntry<com.electromagnetism.content.instruments.InstrumentBlockEntity> INSTRUMENT = REGISTRATE.blockEntity("instrument", com.electromagnetism.content.instruments.InstrumentBlockEntity::new).validBlock(ModBlocks.MICROPHONE).validBlock(ModBlocks.OSCILLOSCOPE).register();
+    public static final BlockEntityEntry<com.electromagnetism.content.instruments.InstrumentBlockEntity> INSTRUMENT = REGISTRATE.blockEntity("instrument", com.electromagnetism.content.instruments.InstrumentBlockEntity::new).validBlock(ModBlocks.MICROPHONE).validBlock(ModBlocks.OSCILLOSCOPE).validBlock(ModBlocks.RADIO_TRANSMITTER).validBlock(ModBlocks.RADIO_RECEIVER).register();
+    public static final BlockEntityEntry<com.electromagnetism.content.instruments.SignalGeneratorBlockEntity> SIGNAL_GENERATOR = REGISTRATE.blockEntity("signal_generator", com.electromagnetism.content.instruments.SignalGeneratorBlockEntity::new).validBlock(ModBlocks.SIGNAL_GENERATOR).register();
     public static void register() {
     }
 }

@@ -56,6 +56,10 @@ public class ElectromagnetismMod {
                         .andThen(TooltipModifier.mapNull(new com.george_vi.electroenergetics.client.ElectricStatsTooltipModifier(item))));
         REGISTRATE.registerEventListeners(modEventBus);
 
+        modEventBus.addListener(com.electromagnetism.content.instruments.ScopeNetworking::register);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+            (net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) ->
+                com.electromagnetism.content.instruments.ScopeNetworking.forget(event.getEntity().getUUID()));
         ModItems.register();            // 注册物品（灯具类）
         ModBlocks.register();           // 注册方块（灯具、线圈、开关、定子、逆变器、三极管等）
         ModPartialModels.register();    // 注册部分模型（渲染用）

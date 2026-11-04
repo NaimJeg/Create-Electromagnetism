@@ -16,7 +16,11 @@ public final class OscilloscopeScreen extends Screen {
     private double volts = 0.02, seconds = 0.1, center, timeOffset;
     private final List<Button> controls = new ArrayList<>();
     private List<WaveformBuffer.Sample> frozen;
-    private int left, top, panelWidth, plotX, plotY, plotWidth, plotHeight;
+    private int subscriptionTicks;
+    private boolean triggered;
+    private List<WaveformBuffer.Sample> triggeredCapture;
+    private TriggeredCapture trigger;
+    private int left, top, panelWidth, panelHeight, plotX, plotY, plotWidth, plotHeight;
 
     public OscilloscopeScreen(InstrumentBlockEntity instrument) {
         super(Component.translatable("electromagnetism.scope.title"));
@@ -27,7 +31,7 @@ public final class OscilloscopeScreen extends Screen {
     @Override protected void init() {
         controls.clear();
         panelWidth = Math.min(480, width - 20);
-        int panelHeight = Math.min(310, height - 12);
+        panelHeight = Math.min(310, height - 12);
         left = (width - panelWidth) / 2; top = (height - panelHeight) / 2;
         plotX = left + 42; plotY = top + 32;
         plotWidth = panelWidth - 58; plotHeight = Math.max(40, panelHeight - 152);
@@ -42,7 +46,12 @@ public final class OscilloscopeScreen extends Screen {
         control(1, row, "down", () -> center -= volts);
         control(2, row, "older", () -> timeOffset = viewport().timeOffsetSeconds() - viewport().secondsPerDivision());
         control(3, row, "newer", () -> timeOffset = Math.min(0, viewport().timeOffsetSeconds() + viewport().secondsPerDivision()));
-        control(4, row, "reset", () -> { volts = 0.02; seconds = 0.1; center = timeOffset = 0; frozen = null; });
+        control(4, row, "reset", () -> { volts = 0.02; seconds = 0.1; center = timeOffset = 0; frozen = null; triggered=false;triggeredCapture=null;trigger=null; });
+        controls.add(Button.builder(text("trigger"), b -> { triggered=!triggered;triggeredCapture=null;
+            var samples=instrument.samples();
+            trigger=new TriggeredCapture(0,samples.isEmpty()?0:samples.getLast().timeSeconds(),128,256); })
+                .bounds(left+8,row+23,140,20).build());
+        com.electromagnetism.content.instruments.ScopeNetworking.request(instrument.getBlockPos());
         addRenderableWidget(new ScopePanel(left, top, panelWidth, panelHeight));
     }
     private void control(int column, int y, String key, Runnable action) {
@@ -51,11 +60,15 @@ public final class OscilloscopeScreen extends Screen {
     }
     private String number(double value) { return String.format(Locale.ROOT, "%.3g", value == 0 ? 0 : value); }
     @Override public void tick() {
+        if (++subscriptionTicks%20==0) com.electromagnetism.content.instruments.ScopeNetworking.request(instrument.getBlockPos());
+        if(triggered && triggeredCapture==null && trigger!=null) {
+            trigger.accept(instrument.samples());triggeredCapture=trigger.result().orElse(null);
+        }
         if (instrument.isRemoved() || minecraft.level == null || minecraft.player == null
                 || minecraft.player.distanceToSqr(instrument.getBlockPos().getCenter()) > 64) onClose();
     }
     private ScopeViewport viewport() {
-        var samples = frozen == null ? instrument.samples() : frozen;
+        var samples = frozen != null ? frozen : triggeredCapture != null ? triggeredCapture : instrument.samples();
         var view = new ScopeViewport(volts, seconds, center, timeOffset);
         if (samples.size() < 2) return view;
         double history = samples.getLast().timeSeconds() - samples.getFirst().timeSeconds();
@@ -63,10 +76,10 @@ public final class OscilloscopeScreen extends Screen {
         return view.fitHistory(history, minimum);
     }
     private void renderPanel(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        g.fill(left, top, left + panelWidth, plotY + plotHeight + 96, 0xf0142028);
+        g.fill(left, top, left + panelWidth, top + panelHeight, 0xf0142028);
         g.drawString(font, title, left + 10, top + 9, 0xffffff);
-        g.drawString(font, text(frozen == null ? "live" : "held"), left + panelWidth - 80, top + 9, 0x66ffaa);
-        var samples = frozen == null ? instrument.samples() : frozen;
+        g.drawString(font, text(frozen != null || triggeredCapture != null ? "held" : triggered ? "armed" : "live"), left + panelWidth - 80, top + 9, 0x66ffaa);
+        var samples = frozen != null ? frozen : triggeredCapture != null ? triggeredCapture : instrument.samples();
         var view = viewport();
         g.fill(plotX, plotY, plotX + plotWidth, plotY + plotHeight, 0xff081014);
         for (int i = 0; i <= 10; i++) g.fill(plotX + i * plotWidth / 10, plotY, plotX + i * plotWidth / 10 + 1, plotY + plotHeight, 0xff263b43);
@@ -81,7 +94,7 @@ public final class OscilloscopeScreen extends Screen {
             g.drawString(font, label, Math.min(x, plotX + plotWidth - font.width(label)), plotY + plotHeight + 4, 0xaaaaaa);
         }
         var visible = new ArrayList<WaveformBuffer.Sample>();
-        boolean stale = samples.isEmpty() || (frozen == null && minecraft.level != null
+        boolean stale = samples.isEmpty() || (frozen == null && triggeredCapture == null && minecraft.level != null
                 && minecraft.level.getGameTime() / 20.0 - samples.getLast().timeSeconds() > 0.25);
         if (!samples.isEmpty()) {
             double reference = samples.getLast().timeSeconds();
@@ -119,7 +132,8 @@ public final class OscilloscopeScreen extends Screen {
         g.drawString(font, settings, left + 9, plotY + plotHeight + 18, 0xeeeeee);
         var stats = WaveformMeasurements.statistics(visible);
         var hz = stats.isPresent() ? WaveformMeasurements.frequency(visible, stats.get().mean(), true) : OptionalDouble.empty();
-        String status = stale ? text("stale").getString() : stats.isEmpty() ? text("incomplete").getString()
+        boolean undersampled=hz.isPresent() && visible.size()>1 && hz.getAsDouble()*(visible.getLast().timeSeconds()-visible.getFirst().timeSeconds())*8>visible.size();
+        String status = undersampled ? text("undersampled").getString() : stale ? text("stale").getString() : stats.isEmpty() ? text("incomplete").getString()
                 : "RMS " + number(stats.get().rms()) + " V | f " + (hz.isPresent() ? number(hz.getAsDouble()) : "?") + " Hz | " + visible.size() + " samples";
         g.drawString(font, status, left + 9, plotY + plotHeight + 31, stale ? 0xffaa44 : 0xaaaaaa);
         for (var control : controls) control.render(g, mouseX, mouseY, partialTick);

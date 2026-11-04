@@ -1,6 +1,7 @@
 package com.electromagnetism.content.electronics.mosfet;
 
-import com.electromagnetism.core.model.ElectricalLimits;
+import com.electromagnetism.core.model.*;
+import com.electromagnetism.integration.cee.electrical.ThreeTerminalDevice;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -11,15 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * MOS 管器件（N 沟道或 P 沟道）。端子 0=栅极 G、1=漏极 D、2=源极 S。
- * <p>
- * 两个元件共享同一份工作点状态：栅源绝缘（1GΩ——电压驱动的物理来源，
- * 稳态栅极电流约等于零）和漏源沟道（阈值导通 + R_DS(on) 低导通电阻 +
- * 体二极管）。与三极管相比：没有 β、不需要基极电流，控制只看电压；
- * 导通损耗低一个数量级以上，适合低功耗与大电流开关场景。
- * 模型细节见 {@link MosfetElectricalProperties}。
- * P 沟道变体运行同一套数学，只是所有极性取反（源极接高电位、栅极拉低导通）。
+/** Three-terminal pure model stamped into CEE's complete island Jacobian.
+ * Parameters freeze per tick; solver iterations use physical multi-terminal residuals.
  */
 public class MosfetDevice extends SimpleElectricalDevice {
     /** 阈值电压 V_GS(th)（单位：伏）。 */
@@ -31,33 +25,16 @@ public class MosfetDevice extends SimpleElectricalDevice {
     /** P 沟道变体为 true；由器件类型工厂一次性设定。 */
     public boolean pChannel;
 
-    /** 两个元件共享的工作点（上一微刻的 V_GS）。 */
-    private final MosfetElectricalProperties.SharedState state = new MosfetElectricalProperties.SharedState();
-    /** 栅源绝缘元件。 */
-    private final MosfetElectricalProperties gateInsulation = new MosfetElectricalProperties(true, state);
-    /** 漏源沟道元件。 */
-    private final MosfetElectricalProperties dsChannel = new MosfetElectricalProperties(false, state);
-
     public MosfetDevice(Level level, BlockPos pos, DevicesSavedData deviceSD, SimulatedDeviceType<?> type) {
         super(level, pos, deviceSD, type);
     }
 
-    /**
-     * 每个游戏刻开始前把三个可调参数下发到两个元件，并建立电路桥接：
-     * 栅源绝缘桥接 G-S（先桥接，让 V_GS 先于沟道更新），漏源沟道桥接 D-S。
-     * 使用普通桥接而不设 defaultZeroPotential：MOS 管不能抢占其所在电路的
-     * 地参考——如果把错误的端子（比如栅极）接地，驱动信号会被直接吞掉。
-     */
     @Override
     public void preTick(BridgeCollector bridges) {
         vth = ElectricalLimits.GATE_THRESHOLD.sanitize(vth);
         rdsOn = ElectricalLimits.ON_RESISTANCE.sanitize(rdsOn);
         idMax = ElectricalLimits.DRAIN_CURRENT.sanitize(idMax);
-        state.pChannel = pChannel;
-        gateInsulation.configure(vth, rdsOn, idMax);
-        dsChannel.configure(vth, rdsOn, idMax);
-        bridges.bridge(new InWorldNode(0, pos), new InWorldNode(2, pos), gateInsulation);
-        bridges.bridge(new InWorldNode(1, pos), new InWorldNode(2, pos), dsChannel);
+        new ThreeTerminalDevice<>(new MosfetModel(pChannel),new MosfetModel.Parameters(vth,rdsOn,idMax),pos).connect(bridges);
     }
 
     /** 从 NBT 恢复参数；缺失或非有限值使用默认值，越界值钳制到合法区间。 */

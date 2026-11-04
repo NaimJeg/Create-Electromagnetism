@@ -265,7 +265,10 @@ public class ModBlocks {
      * 主类调用本方法仅为确保本类被加载。
      */
     public static final BlockEntry<com.electromagnetism.content.instruments.MicrophoneBlock> MICROPHONE = REGISTRATE.block("microphone", com.electromagnetism.content.instruments.MicrophoneBlock::new).initialProperties(SharedProperties::stone).properties(p -> p.noOcclusion()).transform(pickaxeOnly()).simpleItem().register();
+    public static final BlockEntry<com.electromagnetism.content.instruments.SignalGeneratorBlock> SIGNAL_GENERATOR = REGISTRATE.block("signal_generator", com.electromagnetism.content.instruments.SignalGeneratorBlock::new).initialProperties(SharedProperties::stone).properties(p -> p.noOcclusion()).transform(pickaxeOnly()).simpleItem().register();
     public static final BlockEntry<com.electromagnetism.content.instruments.OscilloscopeBlock> OSCILLOSCOPE = REGISTRATE.block("oscilloscope", com.electromagnetism.content.instruments.OscilloscopeBlock::new).initialProperties(SharedProperties::stone).properties(p -> p.noOcclusion()).transform(pickaxeOnly()).simpleItem().register();
+    public static final BlockEntry<com.electromagnetism.content.instruments.RadioBlock> RADIO_TRANSMITTER = REGISTRATE.block("radio_transmitter", p->new com.electromagnetism.content.instruments.RadioBlock(p,true)).initialProperties(SharedProperties::softMetal).properties(p->p.noOcclusion()).transform(pickaxeOnly()).simpleItem().register();
+    public static final BlockEntry<com.electromagnetism.content.instruments.RadioBlock> RADIO_RECEIVER = REGISTRATE.block("radio_receiver", p->new com.electromagnetism.content.instruments.RadioBlock(p,false)).initialProperties(SharedProperties::softMetal).properties(p->p.noOcclusion()).transform(pickaxeOnly()).simpleItem().register();
     public static void register() {
     }
 }

@@ -5,11 +5,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 /** Identity/time supplied by CEE. A topology revision identifies live wiring, not a mod version. */
-public record StepContext(UUID session, UUID network, long topologyRevision, long sequence, TimeStep time) {
+public record StepContext(UUID session, UUID network, long topologyRevision, long sequence, long attempt, TimeStep time) {
+    public StepContext(UUID session,UUID network,long topologyRevision,long sequence,TimeStep time) {
+        this(session,network,topologyRevision,sequence,0,time);
+    }
     public StepContext {
         Objects.requireNonNull(session);
         Objects.requireNonNull(network);
         Objects.requireNonNull(time);
-        if (topologyRevision < 0 || sequence < 0) throw new IllegalArgumentException("Negative revision");
+        if (topologyRevision < 0 || sequence < 0 || attempt < 0) throw new IllegalArgumentException("Negative revision");
     }
 }

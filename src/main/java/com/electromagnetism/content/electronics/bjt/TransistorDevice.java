@@ -1,6 +1,7 @@
 package com.electromagnetism.content.electronics.bjt;
 
-import com.electromagnetism.core.model.ElectricalLimits;
+import com.electromagnetism.core.model.*;
+import com.electromagnetism.integration.cee.electrical.ThreeTerminalDevice;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -11,13 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * 三极管器件（NPN 或 PNP）。端子 0=基极、1=集电极、2=发射极。
- * <p>
- * 两个微刻驱动的元件共享同一份工作点状态：基射结（一个带可配置导通电压的
- * 分段二极管）和集射输出（一个 {@code beta * I_B} 的受限电流源，上限为
- * 配置的最大电流）。模型细节见 {@link TransistorElectricalProperties}。
- * PNP 变体运行同一套数学，只是所有极性取反。
+/** Three-terminal pure model stamped into CEE's complete island Jacobian.
+ * Parameters freeze per tick; solver iterations use physical multi-terminal residuals.
  */
 public class TransistorDevice extends SimpleElectricalDevice {
     /** 电流放大倍数 β（玩家可调，1..1000）。 */
@@ -29,35 +25,16 @@ public class TransistorDevice extends SimpleElectricalDevice {
     /** PNP 变体为 true；由器件类型工厂一次性设定。 */
     public boolean pnp;
 
-    /** 两个元件共享的工作点（上一微刻的 V_BE / V_CE）。 */
-    private final TransistorElectricalProperties.SharedState state = new TransistorElectricalProperties.SharedState();
-    /** 基射结元件（junction=true 表示结二极管模型）。 */
-    private final TransistorElectricalProperties beJunction = new TransistorElectricalProperties(true, state);
-    /** 集射输出元件（受控电流源模型）。 */
-    private final TransistorElectricalProperties ceOutput = new TransistorElectricalProperties(false, state);
-
     public TransistorDevice(Level level, BlockPos pos, DevicesSavedData deviceSD, SimulatedDeviceType<?> type) {
         super(level, pos, deviceSD, type);
     }
 
-    /**
-     * 每个游戏刻开始前把三个可调参数下发到两个元件，并建立电路桥接：
-     * 基射结桥接 B-E，集射输出桥接 C-E。
-     * 使用普通桥接而不设 defaultZeroPotential：三极管不能抢占其所在电路的
-     * 地参考——如果把错误的端子（比如基极）接地，驱动信号会被直接吞掉。
-     */
     @Override
     public void preTick(BridgeCollector bridges) {
         beta = ElectricalLimits.BETA.sanitize(beta);
         vbeOn = ElectricalLimits.VBE.sanitize(vbeOn);
         icMax = ElectricalLimits.COLLECTOR_CURRENT.sanitize(icMax);
-        state.pnp = pnp;
-        beJunction.configure(beta, vbeOn, icMax);
-        ceOutput.configure(beta, vbeOn, icMax);
-        // 普通桥接，不设 defaultZeroPotential：三极管不能声明自己所在电路的地参考
-        // ——把错误的端子（如基极）接地会毁掉驱动信号。
-        bridges.bridge(new InWorldNode(0, pos), new InWorldNode(2, pos), beJunction);
-        bridges.bridge(new InWorldNode(1, pos), new InWorldNode(2, pos), ceOutput);
+        new ThreeTerminalDevice<>(new BjtModel(pnp),new BjtModel.Parameters(beta,vbeOn,icMax),pos).connect(bridges);
     }
 
     /** 从 NBT 恢复参数；缺失或非有限值使用默认值，越界值钳制到合法区间。 */

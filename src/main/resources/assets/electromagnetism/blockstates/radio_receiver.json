@@ -1,0 +1,1 @@
+{"variants": {"facing=south": {"model": "electromagnetism:block/radio_receiver", "y": 0}, "facing=west": {"model": "electromagnetism:block/radio_receiver", "y": 90}, "facing=north": {"model": "electromagnetism:block/radio_receiver", "y": 180}, "facing=east": {"model": "electromagnetism:block/radio_receiver", "y": 270}}}

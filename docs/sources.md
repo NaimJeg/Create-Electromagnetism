@@ -116,13 +116,13 @@ Ansys：区分电路模型与三维电磁场求解。
 | 缓存 JAR 自报版本 | `1.21.1-1.1.4` |
 | JAR SHA-256 | `2362decf60ace66037eb2ae79f34fed57b5f152e0435164f5f91912ea837052f` |
 | 类目录核验 | 有 `MicroTickingElectricalProperties`、`FinishElectricSimulationEvent`；未发现 Norton 类 |
-| 本项目运行依赖范围 | 模板声明 `[1.1.1,)`；根 README 声称 `1.2.0-130` 及以上，尚未统一 |
+| 本项目运行依赖范围 | 模板精确固定 `[1.21.1-1.1.4]`，与当前制品一致 |
 | 制品对应源码提交 | 待确认，不能以 C1/C2 的开发快照代替 |
-| 构建／行为状态 | 本次未重跑构建、游戏、数值回归或性能基准 |
+| 构建／行为状态 | 本轮已运行构建、数值检查与专用服务器世界夹具；性能规模基准尚未发布，具体范围见 roadmap |
 
 本次成功读取[CEE 官方交流说明](https://github.com/george8188625/Create-Electro-Energetics/wiki/Alternating-Current)，确认上游将 AC 标为实验性，介绍微步、三相发电、仪表、同步和变压器连接。该 Wiki 不是目标 JAR 的 API 合同。
 
-本次请求 C2 中固定提交的 `Network.java` 与 `SimulationTicker.java` 原始正文未成功；相关实现细节保留为历史调查及待复核项，不标为本次源码复核结果。
+历史文档请求 C2 中固定提交的 `Network.java` 与 `SimulationTicker.java` 原始正文未成功；相关实现细节保留为历史调查及待复核项，不标为本次源码复核结果。
 
 ## I6
 
